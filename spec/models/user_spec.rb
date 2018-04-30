@@ -80,6 +80,16 @@ describe "when email address is already taken" do
     it { should_not be_valid }
   end
 
+describe "email address with mixed case" do
+	let(:newMixedEmail) {"aA@gMail.com"}
+
+	it "sould be saved with lower-case" do
+		@user.email = newMixedEmail
+		@user.save
+		@user.reload.email.should == newMixedEmail.downcase
+	end
+end
+
 describe "when password is not present" do
   before { @user.password = @user.password_confirmation = " " }
   it { should_not be_valid }
