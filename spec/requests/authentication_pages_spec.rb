@@ -28,11 +28,7 @@ describe "Authentication" do
 
     describe "with valid information" do
       let(:user) { FactoryGirl.create(:user) }
-      before do
-        fill_in "Email",    with: user.email.upcase
-        fill_in "Password", with: user.password
-        click_button "Sign in"
-      end
+      before {sign_in user}
 
       it { should have_selector('title', text: user.name) }
       
@@ -43,10 +39,18 @@ describe "Authentication" do
       
       it { should_not have_link('Sign in', href: signin_path) }
       
+
       describe "followed by signout" do
         before { click_link "Sign out" }
         it { should have_link('Sign in') }
+        it { should_not have_link('Profile',  href: user_path(user)) }
+        it { should_not have_link('Settings', href: edit_user_path(user)) }
       end
+
+      describe "trying to signup`" do
+          before { visit  signin_path }
+        specify { response.should redirect_to(root_url) }
+        end
 
 
 
@@ -60,9 +64,7 @@ describe "Authentication" do
       describe "when attempting to visit a protected page" do
         before do
           visit edit_user_path(user)
-          fill_in "Email",    with: user.email
-          fill_in "Password", with: user.password
-          click_button "Sign in"
+          sign_in user
         end
 
         describe "after signing in" do
